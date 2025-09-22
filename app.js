@@ -6,7 +6,8 @@ import db from './configs/db.js'
 import Productrouter from './src/product-services/product-router/product.router.js'; 
 import authRouter from './src/auth-services/auth-router/auth.router.js'
 import client from './configs/redis.config.js'
-import cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser'; 
+import UserRouter from './src/user-services/user-router/user.router.js'
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(cookieParser());
 db();
 app.use('/api',Productrouter)
 app.use('/api',authRouter)
+app.use('/api',UserRouter)
 
 
 

@@ -53,3 +53,7 @@ export const storeDetails = async(storeId)=>{
     return await Store.findOne({storeId:storeId})
 
 }
+
+export const fetchProductById = async(productId)=>{
+    return await Product.findById(productId);
+}

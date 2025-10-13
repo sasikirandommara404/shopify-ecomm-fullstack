@@ -1,0 +1,80 @@
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setProducts } from '../slice/slice.jsx';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import '../App.css';
+
+
+export const ProductList = () => {
+  const dispatch = useDispatch();
+  const products = useSelector((state) => state.ecommerce.productsList);
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/getallproducts/home');
+        console.log(response.data.data.products);
+        dispatch(setProducts(response.data.data.products));
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, [dispatch]); 
+  const onProductLink = (id)=>{
+    navigate(`/productdetails/${id}`)
+
+  }
+  
+  return (
+
+    <div className="py-3 py-md-5 bg-light">
+      <div className="container">
+        <div className="row">
+
+          {products && products.length > 0 ? (
+            products.map((product) => (
+              // ------------------------------------------------------------------
+              // KEY CHANGE: Added 'col-6' for 2 columns on mobile/small screens.
+              // ------------------------------------------------------------------
+              <div className="col-6 col-md-3 mb-4" key={product._id}>
+                <div className="product-card">
+                  <div className="product-card-img">
+                    {/* Placeholder image source/alt if needed */}
+                    <img src={product.productImage[0]?.url} alt={product.productName} />
+                  </div>
+                  <div className="product-card-body">
+                    <p className="product-brand">{product.productCategory[0]}</p>
+                    <h5 className="product-name">
+                      <a href="#">{product.productName}</a>
+                    </h5>
+                    <div>
+                      <span className="selling-price">₹{product.productPrice}</span>
+                      <span className="original-price">₹{Math.floor(product.productPrice * 1.2)}</span>
+                    </div>
+                    <div className="mt-2 button-row">
+                      <a href="#" className="btn btn1">Add To Cart</a>
+                      <a href="#" className="btn btn1"><i className="fa fa-heart"></i></a>
+                      <button onClick={()=>onProductLink(product.productId)} className="btn btn1">View</button>
+                      <span className={`stock-badge ${product.productStock > 0 ? "bg-success" : "bg-danger"}`}>
+                        {product.productStock > 0 ? "In Stock" : "Out of Stock"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p>No products available</p>
+          )}
+
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProductList;

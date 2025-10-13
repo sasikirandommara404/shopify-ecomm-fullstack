@@ -1,0 +1,72 @@
+.main-navbar {
+    border-bottom: 1px solid #ccc;
+}
+
+.main-navbar .top-navbar {
+    background-color: #2874f0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.main-navbar .top-navbar .brand-name,
+.main-navbar .top-navbar .brand-name:link,
+.main-navbar .top-navbar .brand-name:visited,
+.main-navbar .top-navbar .brand-name:hover,
+.main-navbar .top-navbar .brand-name:active {
+    color: #fff;
+    text-decoration: none !important;
+}
+
+
+.main-navbar .top-navbar .nav-link,
+.main-navbar .top-navbar .nav-link:link,
+.main-navbar .top-navbar .nav-link:visited,
+.main-navbar .top-navbar .nav-link:hover,
+.main-navbar .top-navbar .nav-link:active {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none !important;
+}
+
+.main-navbar .top-navbar .dropdown-menu {
+    padding: 0px 0px;
+    border-radius: 0px;
+}
+
+.main-navbar .top-navbar .dropdown-menu .dropdown-item {
+    padding: 8px 16px;
+    border-bottom: 1px solid #ccc;
+    font-size: 14px;
+    text-decoration: none !important; 
+}
+
+.main-navbar .top-navbar .dropdown-menu .dropdown-item i {
+    width: 20px;
+    text-align: center;
+    color: #2874f0;
+    font-size: 14px;
+}
+
+.main-navbar .navbar {
+    padding: 0px;
+    background-color: #ddd;
+}
+
+.main-navbar .navbar .nav-item .nav-link,
+.main-navbar .navbar .nav-item .nav-link:link,
+.main-navbar .navbar .nav-item .nav-link:visited,
+.main-navbar .navbar .nav-item .nav-link:hover,
+.main-navbar .navbar .nav-item .nav-link:active {
+    padding: 8px 20px;
+    color: #000;
+    font-size: 15px;
+    text-decoration: none !important; 
+}
+
+@media only screen and (max-width: 600px) {
+    .main-navbar .top-navbar .nav-link {
+        font-size: 12px;
+        padding: 8px 10px;
+    }
+}

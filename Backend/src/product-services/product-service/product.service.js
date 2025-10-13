@@ -26,8 +26,31 @@ export const findUserRatingProduct = async (productId,userId)=>{
    
 }
 
-export const allProducts = async ()=>{
-    return await Product.find();
+export const allProducts = async (filter = {})=>{
+    if (!filter) return []
+    const {pagetype} = filter
+    switch(pagetype){
+        case "home":
+            return await Product.find({isFeatured:false}).populate('storeId')
+        case "electronics":
+            return await Product.find({productCategory:{$in:["Electronics"]}}).populate('storeId')
+        case "fasion":
+            return await Product.find({productCategory:{$in:["Fashions"]}}).populate('storeId')
+        case "Accessories":
+            return await Product.find({productCategory:{$in:["Accessories"]}}).populate('storeId')
+        case "Appliances":
+            return await Product.find({productCategory:{$in:["Appliances"]}}).populate('storeId')
+        case "isFeatured":
+            return await Product.find({isFeatured:true}).populate('storeId')
+        case "newArrivals":
+            return await Product.find({}).sort({ isNewArrival: -1,createdAt: -1}).populate("storeId");
+
+    }
+
+
+
+
+    return await Product.find().populate('storeId');
 }
 
 export const getStoreDetails = async (storeId)=>{
@@ -50,10 +73,14 @@ export const getProductbyId = async(productId)=>{
 }
 
 export const storeDetails = async(storeId)=>{
-    return await Store.findOne({storeId:storeId})
+    return await Store.findById({_id:storeId});
 
 }
 
 export const fetchProductById = async(productId)=>{
     return await Product.findById(productId);
+}
+
+export const updateProduct = async (data,productId)=>{
+    return await Product.findOneAndUpdate({productId:productId},{$set:data},{ new: true, runValidators: true, timestamps: true })     
 }

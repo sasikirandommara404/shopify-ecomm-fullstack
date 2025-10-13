@@ -59,10 +59,40 @@ const productSchema = new mongoose.Schema(
             ]
         ,
         productRating:[ratingSchema],
-        storeId:{
-            type:String,
-            required:true
+        storeId:{type: mongoose.Schema.Types.ObjectId, ref:"Store", required:true},
+        isFeatured:{
+            type:Boolean,
+            default:false,
+            index:true
+        },
+        isNewArrival:{
+            type:Boolean,
+            default:false,
+            index:true
+        },
+        isTrending:{
+            type:Boolean,
+            default:false,
+            index:true
+        },
+        collections:{
+            type:[String],
+            default:[],
+            index:true
+        },
+        featuredPriority:{
+            type:Number,
+            default:0
+        },
+        featuredFrom:{
+            type:Date,
+            default:null
+        },
+        featuredUntil:{
+            type:Date,
+            default:null
         }
+        
 
 
 
@@ -89,6 +119,10 @@ productSchema.virtual('averageRating').get(function(){
     }
 }
 );
+
+productSchema.index({ isFeatured: 1, featuredPriority: -1 });
+productSchema.index({ collections: 1 });
+productSchema.index({ isNewArrival: 1, createdAt: -1 });
 
 
 export const Product = mongoose.model("Product",productSchema);

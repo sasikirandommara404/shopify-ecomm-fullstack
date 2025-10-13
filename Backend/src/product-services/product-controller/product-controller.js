@@ -10,7 +10,8 @@ import {
     addStore,
     getStoreExist,
     getProductbyId,
-    storeDetails
+    storeDetails,
+    updateProduct
      } from '../product-service/product.service.js';
 import uploadToCloudinary  from '../../utils/uploadToCloudinary.js'
 import AppError from '../../../AppError.js';
@@ -24,9 +25,10 @@ export const addProduct = async (req,res,next)=>{
             productPrice, 
             productStock, 
             productCategory,
+
          } = req.body;
         const { storeId } = req.params;
-        const storeExists = await getStoreDetails(storeId);
+        const storeExists = await storeDetails(storeId);
         if(!storeExists) throw new AppError("Store does not exist",404);
 
 
@@ -57,7 +59,7 @@ export const addProduct = async (req,res,next)=>{
             productStock:productStock,
             productCategory:productCategory,
             productImage:productImages,
-            storeId:storeId
+            storeId:storeId,
 
         })
         if (!product) throw new AppError("Failed to add Product",401);
@@ -110,9 +112,20 @@ export const addReview = async (req,res,next)=>{
 
 export const getAllProducts = async (req,res,next)=>{
     try{
-        const products = await allProducts();
+        const {pagetype} = req.params
+        const products = await allProducts({pagetype:pagetype
+
+        });
         if(products.length===0){
-            throw new AppError("No Products found",404);
+            return res.status(200).json({
+                status: 'success',
+                message:'No Products are avilable',
+                data:{
+                    products
+
+                }
+
+            })
         }
         return res.status(200).json({
             status:'success',
@@ -196,6 +209,120 @@ export const getStore = async(req,res,next)=>{
                 store
             },
         });
+    }catch(error){
+        next(error)
+    }
+}
+
+
+export const addFuturedProduct = async (req,res,next)=>{
+    try{
+        const {  
+            productName, 
+            productDescription, 
+            productPrice, 
+            productStock, 
+            productCategory,
+            isFeatured,
+            isNewArrival,
+            isTrending,
+            collections,
+            featuredPriority,
+            featuredFrom,
+            featuredUntil
+         } = req.body;
+        const { storeId } = req.params;
+        const storeExists = await storeDetails(storeId);
+        if(!storeExists) throw new AppError("Store does not exist",404);
+        const date = new Date(featuredFrom);
+        if (isNaN(date)) {
+            throw new AppError("Invalid date format", 400);
+        }
+        if (date < new Date()) {
+            throw new AppError("Date Must Be In future", 401);
+        }
+        const featureduntildate = new Date(featuredUntil)
+        if(isNaN(featureduntildate)){
+            throw new AppError("Inavlid Date format",400)
+        }
+        if(featureduntildate<date){
+            throw new AppError("future offer Valid Date Must be Greater than offer start date or current date",401)
+        }
+
+
+        let productImages = [];
+         if (req.file) {
+            const result = await uploadToCloudinary(req.file.buffer, "products");
+
+            productImages.push({
+                url: result.secure_url,
+                public_id: result.public_id,
+            });
+        }else{
+            throw new AppError('No file uploaded',403);
+        }
+
+        let productId=generateId('PRID');
+
+        if (!productId) throw new AppError("Failed to generate id",401);
+
+
+        const product = await createProduct({
+            productId:productId,
+            productName:productName,
+            productDescription:productDescription,
+            productPrice:productPrice,
+            productStock:productStock,
+            productCategory:productCategory,
+            productImage:productImages,
+            storeId:storeId,
+            isFeatured: isFeatured,
+            isNewArrival: isNewArrival,
+            isTrending: isTrending,
+            collections: collections,
+            featuredPriority: featuredPriority,
+            featuredFrom: featuredFrom,
+            featuredUntil: featuredUntil
+
+        })
+        if (!product) throw new AppError("Failed to add Product",401);
+
+        return res.status(201).json({
+            status:"success",
+            message:"Product added successfully",
+            data:{
+                product
+            },
+        });
+
+    }catch(error){
+        next(error)
+    }
+}
+
+
+export const updateProductController = async (req,res,next)=>{
+    try{
+        const data = req.body
+        const {productId} = req.params
+        if(!data){
+            throw new AppError('Invalid Data please enter valid data',400)
+        }
+        const response = await updateProduct(data,productId)
+        if(!response){
+            throw new AppError('Internal Server Please Try Again after some time',500)
+
+        }
+        return res.status(200).json({
+            status:'success',
+            message:'Your Data Updated',
+            data:{
+                response
+            }
+
+        })
+    
+
     }catch(error){
         next(error)
     }

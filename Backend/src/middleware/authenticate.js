@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken'
 export const authenticate = (req, res, next) => {
     try{
         const {jwtSecret} = validateEnvVariables()
-          const token = req.cookies?.accessToken || (req.headers.authorization && req.headers.authorization.split(' ')[1]);
+          const token = (req.headers.authorization && req.headers.authorization.split(' ')[1])|| req.cookies?.accessToken;
 
         if (!token) {
             throw new AppError('Authentication token is missing', 401)

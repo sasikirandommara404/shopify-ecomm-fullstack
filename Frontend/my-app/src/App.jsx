@@ -11,37 +11,79 @@ import FeaturedProductsPage from './pages/featuredproducts.jsx'
 import Appliances from './pages/Appliances.jsx'
 import NewArrivals from './pages/newArrivals.jsx'
 import ProductDetails from './pages/productPage.jsx'
-import { Toaster } from "react-hot-toast";
+import api,{ setAccessToken } from './api/axios.js';
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import {loginUser,updateUserInfo} from './slice/slice.jsx'
+import {jwtDecode} from 'jwt-decode'
+import Login from './pages/login.jsx';
+import ShoppingCartPage from './pages/cartpage.jsx'
 
 
 function App() {
+  const dispatch = useDispatch()
+  
+  useEffect(()=>{
+    const restoreLogin = async ()=>{
+      try{
+        const existingToken = sessionStorage.getItem('accessToken')
+        
+        if(existingToken){
+          try {
+            const decoded = jwtDecode(existingToken)
+            
+            if(decoded.exp * 1000 > Date.now()){
+              setAccessToken(existingToken)
+              dispatch(loginUser(true))
+              dispatch(updateUserInfo(decoded))
+              return 
+            }
+          } catch(err){
+            console.log('Token decode failed:', err)
+          }
+        }
+        
+      
+        const response = await api.post('/user/refresh/token')
+        const newAccessToken = response.data.data.newAccessToken
+        setAccessToken(newAccessToken)
+        
+        const data = jwtDecode(newAccessToken)
+        dispatch(loginUser(true))
+        dispatch(updateUserInfo(data))
+
+      }catch(error){
+        console.log('Restore login failed', error.response?.data || error.message)
+        dispatch(loginUser(false))
+        dispatch(updateUserInfo(null))
+        setAccessToken(null)
+      }
+    }
+    
+    restoreLogin()
+  },[dispatch])
+
   return (
     <div className="App">
-      <>
-        <Navbar />
-        <Routes>
-          <Route path='/' element={
-            <>
-              <EcommerceSlider></EcommerceSlider>
-              <ProductList></ProductList>
-            </>
-            }>
-
-          </Route>
-          <Route path='/electronics' element={<Electronics></Electronics>}></Route>
-          <Route path='/fashion' element={<Fashion></Fashion>}></Route>
-          <Route path='/accessories' element={<Accessories></Accessories>}></Route>
-          <Route path='/featuredproducts' element={<FeaturedProductsPage></FeaturedProductsPage>}></Route>
-          <Route path='/appliances' element={<Appliances></Appliances>}></Route>
-          <Route path='/newarrivals' element={<NewArrivals/>}></Route>
-          <Route path='/productdetails/:id' element={<ProductDetails></ProductDetails>}></Route>
-        </Routes>
-        
-        <Footer />
-        
-      </>
-      
-     
+      <Navbar />
+      <Routes>
+        <Route path='/' element={
+          <>
+            <EcommerceSlider />
+            <ProductList />
+          </>
+        } />
+        <Route path='/electronics' element={<Electronics />} />
+        <Route path='/fashion' element={<Fashion />} />
+        <Route path='/accessories' element={<Accessories />} />
+        <Route path='/featuredproducts' element={<FeaturedProductsPage />} />
+        <Route path='/appliances' element={<Appliances />} />
+        <Route path='/newarrivals' element={<NewArrivals />} />
+        <Route path='/productdetails/:id' element={<ProductDetails />} />
+        <Route path='/cart' element={<ShoppingCartPage />} />
+        <Route path='/login' element={<Login />} />
+      </Routes>
+      <Footer />
     </div>
   );
 }

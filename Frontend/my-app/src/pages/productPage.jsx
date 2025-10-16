@@ -1,11 +1,20 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import {showSuccess,showError} from '../utils/toast.jsx'
+import { useParams,useNavigate} from 'react-router-dom';
+import api from '../api/axios.js'
+import {showSuccess,showError} from '../utils/toast.jsx';
+import { useSelector} from 'react-redux';
+import AddToCart from '../utils/cart.js';
+
+
+
 
 export const ProductDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+  let user = useSelector((state)=>state.ecommerce.user)
+  const addtocart = (productId)=>{
+        AddToCart(productId,user?.userId)
+  }
   
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -24,7 +33,7 @@ export const ProductDetails = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await axios.get(`http://localhost:5000/api/product/by/${id}`);
+        const response = await api.get(`/product/by/${id}`);
         
         if (response.data.status === 'success' && response.data.data.product) {
           setProduct(response.data.data.product);
@@ -53,36 +62,35 @@ export const ProductDetails = () => {
   };
 
   const handleSubmitReview = async () => {
-    if (reviewRating === 0) {
-      showError('Please select a rating');
-      return;
+  try {
+    if(!user){
+      console.log('user not found',user)
+      showError('please login to add review')
+      return
+    }
+    if(!reviewRating){
+      showError('select rating')
+      return 
+    }
+    const response = await api.post(`review/${id}/${user.userId}`,{
+      userRating:reviewRating
+    })
+    if(response.data.status ==='success'){
+      showSuccess(response.data.message)
+    }else{
+      showError(response.data.message)
     }
 
-    try {
-      setSubmittingReview(true);
-      // Replace USER123456 with actual logged-in user ID from your auth system
-      const userId = 'USER123456'; // TODO: Get from authentication context
-      
-      const response = await axios.post(
-        `http://localhost:5000/api/review/${product.productId}/${userId}`,
-        { userRating: reviewRating }
-      );
-
-      if (response.data.status === 'success') {
-        showSuccess('Review submitted successfully!');
-        setShowReviewModal(false);
-        setReviewRating(0);
-        // Refresh product data to show new rating
-        window.location.reload();
-      }
-    } catch (error) {
-      console.error('Error submitting review:', error);
-      showError(error.response?.data?.message || 'Failed to submit review');
-    } finally {
-      setSubmittingReview(false);
-    }
-  };
-
+    
+  } catch (error) {
+    console.log('error while adding review',error)
+    showError(error?.response?.data?.message) 
+  } finally {
+    setSubmittingReview(false);
+    setShowReviewModal(false);
+    setReviewRating(0);
+  }
+};
   if (loading) {
     return (
       <div className="loading-wrapper">
@@ -119,11 +127,11 @@ export const ProductDetails = () => {
   return (
     <>
       <div className="product-page">
-        {/* Hero Section with Image */}
+       
         <div className="product-hero">
           <div className="container-custom">
             <div className="hero-grid">
-              {/* Left: Image Gallery */}
+             
               <div className="gallery-section">
                 <div className="main-image-box">
                   {currentImage ? (
@@ -142,7 +150,7 @@ export const ProductDetails = () => {
                     </div>
                   )}
                   
-                  {/* Badges */}
+                 
                   <div className="badges-container">
                     <span className="badge badge-discount">5% OFF</span>
                     {product.isNewArrival && <span className="badge badge-new">NEW</span>}
@@ -156,7 +164,6 @@ export const ProductDetails = () => {
                   )}
                 </div>
 
-                {/* Thumbnails */}
                 {productImages.length > 1 && (
                   <div className="thumbnails-row">
                     {productImages.map((image, index) => (
@@ -172,15 +179,9 @@ export const ProductDetails = () => {
                 )}
               </div>
 
-              {/* Right: Product Info */}
+            
               <div className="info-section">
-                {/* <div className="breadcrumb-nav">
-                  <span onClick={() => navigate('/')}>Home</span>
-                  <span className="sep">›</span>
-                  <span onClick={() => navigate('/new-arrivals')}>New Arrivals</span>
-                  <span className="sep">›</span>
-                  <span className="active">{product.productName}</span>
-                </div> */}
+                
 
                 {productCategories.length > 0 && (
                   <div className="category-chip">{productCategories[0]}</div>
@@ -250,7 +251,7 @@ export const ProductDetails = () => {
 
                 {/* Action Buttons */}
                 <div className="actions-grid">
-                  <button className="btn-primary" disabled={isOutOfStock}>
+                  <button className="btn-primary" onClick={() =>addtocart(product.id)}  disabled={isOutOfStock}>
                     <i className="fa fa-shopping-bag"></i>
                     Add to Cart
                   </button>

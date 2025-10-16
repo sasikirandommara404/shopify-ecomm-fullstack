@@ -3,10 +3,12 @@ import {useSelector} from 'react-redux';
 import "./nav.css";
 import Login from '../pages/login.jsx';
 import { useState, useRef } from "react";
+import AuthLogOut from "../utils/logout.js";
 
 
 const Navbar = () => {
   const logedin = useSelector((state)=>state.ecommerce.logedIn);
+  const userdetails = useSelector((state)=>state.ecommerce.user)
   const [showlogin,setLoginPopUp] = useState(false);
   const navbarCollapseRef = useRef(null);
 
@@ -73,8 +75,10 @@ const Navbar = () => {
                     role="button"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                  >
-                    <i className="fa fa-user"></i> Username
+                    >
+                    <i className="fa fa-user"></i>{
+                      userdetails ? `${userdetails.email.slice(0,2).toUpperCase()}`:'username'
+                    }
                   </button>
                   <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
                     <li>
@@ -91,7 +95,7 @@ const Navbar = () => {
                       {
                         logedin ?
                         (
-                          <button className="dropdown-item">
+                          <button className="dropdown-item" onClick={()=>AuthLogOut()}>
                             <i className="fa fa-sign-out-alt"></i> Logout
                           </button>
                         ):

@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 
 export const showSuccess = (message) => {
   toast.success(message, {
-    duration: 3000,
+    duration: 1000,
     position: "top-right",
     style: {
       background: "#4BB543",

@@ -3,10 +3,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setProducts } from '../slice/slice.jsx';
 import axios from 'axios';
 import '../App.css';
+import {useNavigate} from 'react-router-dom'
+import AddToCart from '../utils/cart.js';
 
 export const Electronics = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate()
   const products = useSelector((state) => state.ecommerce.productsList);
+  const user = useSelector(state=>state.ecommerce.user)
+  const addtocart = (productId)=>{
+    AddToCart(productId,user?.userId)
+  }
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -21,7 +28,9 @@ export const Electronics = () => {
 
     fetchProducts();
   }, [dispatch]); 
-  
+  const productLink = (id)=>{
+    navigate(`/productdetails/${id}`)
+  }
   return (
     <>
       {/* Attractive Banner Section */}
@@ -230,9 +239,9 @@ export const Electronics = () => {
                         <span className="original-price">₹{Math.floor(product.productPrice * 1.2)}</span>
                       </div>
                       <div className="mt-2 button-row">
-                        <a href="#" className="btn btn1">Add To Cart</a>
+                        <button onClick={() => addtocart(product.id)} className="btn btn1">Add To Cart</button>
                         <a href="#" className="btn btn1"><i className="fa fa-heart"></i></a>
-                        <a href="#" className="btn btn1">View</a>
+                        <button onClick={()=>productLink(product.productId)} className="btn btn1">View</button>
                         <span className={`stock-badge ${product.productStock > 0 ? "bg-success" : "bg-danger"}`}>
                           {product.productStock > 0 ? "In Stock" : "Out of Stock"}
                         </span>

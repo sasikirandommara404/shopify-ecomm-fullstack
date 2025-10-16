@@ -4,12 +4,17 @@ import { setProducts } from '../slice/slice.jsx';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../App.css';
+import AddToCart from '../utils/cart.js';
 
 
 export const ProductList = () => {
   const dispatch = useDispatch();
   const products = useSelector((state) => state.ecommerce.productsList);
   const navigate = useNavigate()
+  const user = useSelector(state=>state.ecommerce.user)
+  const addtocart = (productId)=>{
+    AddToCart(productId,user?.userId)
+  }
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -56,7 +61,7 @@ export const ProductList = () => {
                       <span className="original-price">₹{Math.floor(product.productPrice * 1.2)}</span>
                     </div>
                     <div className="mt-2 button-row">
-                      <a href="#" className="btn btn1">Add To Cart</a>
+                      <button onClick={()=>addtocart(product.id)} className="btn btn1">Add To Cart</button>
                       <a href="#" className="btn btn1"><i className="fa fa-heart"></i></a>
                       <button onClick={()=>onProductLink(product.productId)} className="btn btn1">View</button>
                       <span className={`stock-badge ${product.productStock > 0 ? "bg-success" : "bg-danger"}`}>

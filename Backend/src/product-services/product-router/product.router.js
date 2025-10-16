@@ -8,12 +8,13 @@ import { addProduct,
     getStore,
     addFuturedProduct,
     updateProductController } from '../product-controller/product-controller.js';
+import authenticate from '../../middleware/authenticate.js';
 
 const Productrouter = express.Router();
 
 Productrouter.post('/product/:storeId',upload.single('productImage'),addProduct);
 Productrouter.post('/add/featured/product/:storeId',upload.single('productImage'),addFuturedProduct)
-Productrouter.post('/review/:productId/:userId',addReview);
+Productrouter.post('/review/:productId/:userId',authenticate,addReview);
 Productrouter.get('/getallproducts/:pagetype/',getAllProducts);
 Productrouter.post('/new/store',addNewStore);
 Productrouter.get('/product/by/:id',getProduct);

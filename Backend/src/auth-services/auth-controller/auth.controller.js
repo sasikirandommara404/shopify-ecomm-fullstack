@@ -80,19 +80,19 @@ export const userLogin = async (req,res,next)=>{
         const refreshtoken = jwt.sign({userId:user.userId,email:user.email,role:user.role},refreshToken,{expiresIn:refreshTokenExpiry});
         await client.set(`refreshtoken:${user.userId}`,refreshtoken,{EX:30*24*60*60})
 
-        await client.set(`accessToken:${user.userId}`,accessToken,{EX:15*60});
+        await client.set(`accessToken:${user.userId}`,accessToken,{EX:2*60});
 
 
         res.cookie('accessToken',accessToken,{
             httpOnly:true,
             secure:false,
-            sameSite:'none',
+            sameSite:'lax',
             maxAge:15*60*1000
         })
         res.cookie('refreshtoken',refreshtoken,{
             httpOnly:true,
             secure:false,
-            sameSite:'none',
+            sameSite:'lax',
             maxAge:30*24*60*60*1000
         })
         return res.status(200).json({
@@ -138,7 +138,7 @@ export const refreshAccessToken = async (req,res,next)=>{
         res.cookie('accessToken',newAccessToken,{
             httpOnly:true,
             secure:false,
-            sameSite:'none',
+            sameSite:'lax',
             maxAge:15*60*1000
         })
         return res.status(200).json({

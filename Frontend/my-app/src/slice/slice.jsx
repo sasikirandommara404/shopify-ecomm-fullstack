@@ -24,7 +24,8 @@ const ecommerceSlice = createSlice({
         },
         updateUserInfo:(state,action)=>{
             state.user = action.payload
-        }
+        },
+        
     }
 });
 

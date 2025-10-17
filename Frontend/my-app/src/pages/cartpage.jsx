@@ -2,16 +2,20 @@ import { useState, useEffect } from 'react';
 import { Trash2, Plus, Minus, ShoppingCart, Loader } from 'lucide-react';
 import api from '../api/axios';
 import { showSuccess, showError } from '../utils/toast';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { setCartItems } from '../slice/slice.jsx';
 
 const ShoppingCartPage = () => {
-  const [cartItems, setCartItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const cartItems = useSelector(state => state.ecommerce.cart) || [];
+  const [isLoading, setIsLoading] = useState(false);
   const user = useSelector(state => state.ecommerce.user);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (user?.userId) {
       fetchCartItems();
+    } else {
+      setIsLoading(false);
     }
   }, [user]);
 
@@ -19,55 +23,30 @@ const ShoppingCartPage = () => {
     try {
       setIsLoading(true);
       const response = await api.get(`/cart/${user?.userId}`);
-      
-      // Extract products from nested structure
       const products = response.data.data.cart.productId || [];
-      setCartItems(products);
+      dispatch(setCartItems(products));
     } catch (error) {
       console.error('Failed to fetch cart items:', error);
       showError('Failed to load cart items');
-      setCartItems([]);
+      dispatch(setCartItems([]));
     } finally {
       setIsLoading(false);
     }
   };
 
-  const updateQuantity = async (productId, change) => {
-    const item = cartItems.find(item => item.productId === productId);
-    if (!item) return;
-
-    const newQuantity = Math.max(1, (item.quantity || 1) + change);
-
-    // Check stock availability
-    if (newQuantity > item.productStock) {
-      showError(`Only ${item.productStock} items available in stock`);
-      return;
-    }
-
-    // Optimistic update
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.productId === productId ? { ...item, quantity: newQuantity } : item
-      )
-    );
-
-    try {
-      await api.put(`/cart/${user?.userId}/${productId}`, { quantity: newQuantity });
-      showSuccess('Quantity updated');
-    } catch (error) {
-      console.error('Failed to update quantity:', error);
-      showError('Failed to update quantity');
-      fetchCartItems();
-    }
-  };
+  
 
   const removeItem = async (productId) => {
-    // Optimistic update
-    setCartItems(prevItems => prevItems.filter(item => item.productId !== productId));
-
     try {
-      await api.delete(`/cart/${user?.userId}/${productId}`);
-      showSuccess('Item removed from cart');
+      console.log('Removing item with ID:', productId);
+      const response = await api.post(`/remove-from-cart`, {
+        userId: user.userId,
+        productId: [productId]
+      });
+      if (response.data.status === 'success') {
+        showSuccess('Item removed from cart');
+        fetchCartItems();
+      }
     } catch (error) {
       console.error('Failed to remove item:', error);
       showError('Failed to remove item');
@@ -75,20 +54,10 @@ const ShoppingCartPage = () => {
     }
   };
 
-  const calculateTotal = () => {
-    return cartItems.reduce((total, item) => {
-      const quantity = item.quantity || 1;
-      return total + (item.productPrice * quantity);
-    }, 0);
-  };
-
-  const calculateItemsCount = () => {
-    return cartItems.reduce((count, item) => count + (item.quantity || 1), 0);
-  };
-
   const getProductImage = (item) => {
-    if (item.productImage && item.productImage.length > 0) {
-      return item.productImage[0].url;
+    const images = item.ProductImage || item.productImage;
+    if (images && images.length > 0) {
+      return images[0].url;
     }
     return 'https://via.placeholder.com/60?text=No+Image';
   };
@@ -102,7 +71,7 @@ const ShoppingCartPage = () => {
               <ShoppingCart className="me-3" size={32} style={{ color: '#2874f0' }} />
               <h2 className="mb-0 fw-bold">Shopping Cart</h2>
               {!isLoading && cartItems.length > 0 && (
-                <span className="ms-3 badge bg-primary">{calculateItemsCount()} items</span>
+                <span className="ms-3 badge bg-primary"> items</span>
               )}
             </div>
 
@@ -125,23 +94,6 @@ const ShoppingCartPage = () => {
             {!isLoading && cartItems.length > 0 && (
               <>
                 <div className="shopping-cart">
-                  <div className="cart-header d-none d-lg-block bg-white rounded shadow-sm p-3 mb-3">
-                    <div className="row align-items-center">
-                      <div className="col-md-6">
-                        <h5 className="mb-0 fw-semibold">Products</h5>
-                      </div>
-                      <div className="col-md-2">
-                        <h5 className="mb-0 fw-semibold">Price</h5>
-                      </div>
-                      <div className="col-md-2">
-                        <h5 className="mb-0 fw-semibold">Quantity</h5>
-                      </div>
-                      <div className="col-md-2">
-                        <h5 className="mb-0 fw-semibold">Remove</h5>
-                      </div>
-                    </div>
-                  </div>
-
                   {cartItems.map((item) => (
                     <div key={item.productId} className="cart-item bg-white rounded shadow-sm p-3 mb-3">
                       <div className="row align-items-center">
@@ -201,7 +153,6 @@ const ShoppingCartPage = () => {
                           <div className="d-flex align-items-center">
                             <button
                               className="btn btn-sm border d-flex align-items-center justify-content-center"
-                              onClick={() => updateQuantity(item.productId, -1)}
                               disabled={item.productStock === 0 || (item.quantity || 1) <= 1}
                               style={{ 
                                 width: '34px', 
@@ -225,7 +176,6 @@ const ShoppingCartPage = () => {
                             />
                             <button
                               className="btn btn-sm border d-flex align-items-center justify-content-center"
-                              onClick={() => updateQuantity(item.productId, 1)}
                               disabled={item.productStock === 0 || (item.quantity || 1) >= item.productStock}
                               style={{ 
                                 width: '34px', 
@@ -242,7 +192,7 @@ const ShoppingCartPage = () => {
                         <div className="col-md-2 col-5 my-2">
                           <button
                             className="btn btn-danger btn-sm d-flex align-items-center w-100 justify-content-center"
-                            onClick={() => removeItem(item.productId)}
+                            onClick={() => removeItem(item.id)}
                             style={{ height: '34px' }}
                           >
                             <Trash2 size={16} className="me-1" />
@@ -261,8 +211,8 @@ const ShoppingCartPage = () => {
                       <div className="card-body p-4">
                         <h5 className="card-title mb-3 fw-bold">Order Summary</h5>
                         <div className="d-flex justify-content-between mb-2">
-                          <span className="text-muted">Subtotal ({calculateItemsCount()} items)</span>
-                          <span className="fw-semibold">₹{calculateTotal().toLocaleString('en-IN')}</span>
+                          <span className="text-muted">Subtotal items</span>
+                          <span className="fw-semibold">₹</span>
                         </div>
                         <div className="d-flex justify-content-between mb-2">
                           <span className="text-muted">Shipping</span>
@@ -276,7 +226,7 @@ const ShoppingCartPage = () => {
                         <div className="d-flex justify-content-between mb-4">
                           <h5 className="mb-0 fw-bold">Total</h5>
                           <h5 className="mb-0 text-primary fw-bold">
-                            ₹{calculateTotal().toLocaleString('en-IN')}
+                            
                           </h5>
                         </div>
                         <button className="btn btn-primary w-100 py-2 fw-semibold mb-2">

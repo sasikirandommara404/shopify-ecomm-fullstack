@@ -9,6 +9,7 @@ import client from './configs/redis.config.js'
 import cookieParser from 'cookie-parser'; 
 import UserRouter from './src/user-services/user-router/user.router.js'
 import cartRouter from './src/cart-services/cart-routers/cart.route.js';
+import favoriteRouter from './src/cart-services/cart-routers/favorites.router.js'
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use('/api',Productrouter)
 app.use('/api',authRouter)
 app.use('/api',UserRouter)
 app.use('/api',cartRouter)
+app.use('/api',favoriteRouter)
 
 
 

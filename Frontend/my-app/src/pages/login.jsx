@@ -9,7 +9,7 @@ import Register from './register.jsx';
 const Login = ({ onClose }) => {
   const dispatch = useDispatch();
   const ref = useRef();
-  const [registerPage, setRegisterPage] = useState(false);
+  const [showRegister, setShowRegister] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -76,6 +76,11 @@ const Login = ({ onClose }) => {
     }
   };
 
+  const handleSwitchToRegister = () => {
+    onClose(); // Close login modal first
+    setShowRegister(true); // Then show register modal
+  };
+
   return (
     <>
       <div 
@@ -97,6 +102,16 @@ const Login = ({ onClose }) => {
           padding: "1rem",
         }}
       >
+        <style>{`
+          .link-button {
+            cursor: pointer;
+            display: inline;
+          }
+          .link-button:hover {
+            text-decoration: underline;
+          }
+        `}</style>
+        
         <div 
           className="bg-white rounded shadow-lg position-relative" 
           style={{
@@ -173,23 +188,21 @@ const Login = ({ onClose }) => {
             
             <div className="text-center">
               <p className="text-muted mb-0 small">
-                Don't have an account? <a href="#" className="text-decoration-none fw-semibold" onClick={
-                  (e) => {
-                    e.preventDefault();
-                    setRegisterPage(true);
-                  }
-                }>Sign Up</a>
+                Don't have an account?{' '}
+                <span 
+                  className="text-decoration-none fw-semibold link-button" 
+                  onClick={handleSwitchToRegister}
+                >
+                  Sign Up
+                </span>
               </p>
             </div>
           </form>
         </div>
       </div>
       
-      {registerPage && (
-        <Register onClose={() => {
-          setRegisterPage(false);
-          onClose();
-        }} />
+      {showRegister && (
+        <Register onClose={() => setShowRegister(false)} />
       )}
     </>
   );

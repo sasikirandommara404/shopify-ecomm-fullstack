@@ -4,8 +4,10 @@ import { loginUser, updateUserInfo } from '../slice/slice.jsx';
 import { showSuccess, showError } from '../utils/toast.jsx';
 import { jwtDecode } from "jwt-decode";
 import api, { setAccessToken } from '../api/axios.js';
+import Login from './login.jsx';
 
 const Register = ({ onClose }) => {
+  const [showLogin, setShowLogin] = useState(false);
   const dispatch = useDispatch();
   const ref = useRef();
   const [formData, setFormData] = useState({
@@ -94,27 +96,29 @@ const Register = ({ onClose }) => {
     try {
       const response = await api.post('/user/register', formData);
       
-      if (response.data.status === 'sucess' || response.data.message === 'account created successfully') {
-        const data = await jwtDecode(response.data.data.accessToken);
-        setAccessToken(response.data.data.accessToken);
-        dispatch(loginUser(true));
-        dispatch(updateUserInfo(data));
+      if (response.data.status === 'success' || response.data.message === 'account created successfully') {
         showSuccess('Registration Successful! Welcome To Shopfy');
+        // Close register modal and show login modal
         onClose();
+        setShowLogin(true);
       } else {
         showError('Registration Failed');
-        onClose();
       }
       
     } catch (err) {
       showError('Please Try again after sometime');
-      onClose();
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleSwitchToLogin = () => {
+    onClose(); // Close register modal first
+    setShowLogin(true); // Then show login modal
+  };
+
   return (
+    <>
     <div 
       ref={ref} 
       onClick={closeModel} 
@@ -179,6 +183,13 @@ const Register = ({ onClose }) => {
         }
         .form-control:focus {
           transform: translateY(-2px);
+        }
+        .link-button {
+          cursor: pointer;
+          display: inline;
+        }
+        .link-button:hover {
+          text-decoration: underline;
         }
       `}</style>
       
@@ -460,20 +471,21 @@ const Register = ({ onClose }) => {
           
           <div className="text-center mt-4">
             <p className="text-muted mb-0">
-              Already have an account? <a 
-                href="#" 
-                className="text-decoration-none fw-semibold" 
+              Already have an account?{' '}
+              <span 
+                className="text-decoration-none fw-semibold link-button" 
                 style={{ color: "#6366f1" }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  onClose();
-                }}
-              >Sign In</a>
+                onClick={handleSwitchToLogin}
+              >
+                Sign In
+              </span>
             </p>
           </div>
         </form>
       </div>
     </div>
+    {showLogin && <Login onClose={() => setShowLogin(false)} />}
+    </>
   );
 };
 

@@ -25,10 +25,13 @@ const ecommerceSlice = createSlice({
         updateUserInfo:(state,action)=>{
             state.user = action.payload
         },
+        setCartItems : (state,action)=>{
+            state.cart = action.payload;
+        }
         
     }
 });
 
-export const {setProducts,loginUser,updateUserInfo} = ecommerceSlice.actions;
+export const {setProducts,loginUser,updateUserInfo,setCartItems} = ecommerceSlice.actions;
 export default ecommerceSlice.reducer;
 

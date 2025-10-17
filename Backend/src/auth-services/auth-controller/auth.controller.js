@@ -45,11 +45,8 @@ export const registerNewUser = async (req,res,next)=>{
         if(!userAdded) throw new AppError("Account  creation failed ,try again later",401);
 
         return res.status(201).json({
-            status:'sucess',
+            status:'success',
             message:"account created successfully",
-            data:{
-                userAdded
-            }
         });
     }catch(error){
         console.error(error);

@@ -1,5 +1,5 @@
 import AppError from "../../../AppError.js";
-import {createOrder} from '../order.services.js/order.services.js';
+import {createOrder} from '../order.services/order.services.js';
 
 export const orderController = async (req,res,next) =>{
     try{

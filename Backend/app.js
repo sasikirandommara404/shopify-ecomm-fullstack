@@ -10,6 +10,9 @@ import cookieParser from 'cookie-parser';
 import UserRouter from './src/user-services/user-router/user.router.js'
 import cartRouter from './src/cart-services/cart-routers/cart.route.js';
 import favoriteRouter from './src/cart-services/cart-routers/favorites.router.js'
+import orderRouter from './src/order-services/order.routers/order.routers.js';
+
+
 
 const app = express();
 
@@ -30,7 +33,7 @@ app.use('/api',authRouter)
 app.use('/api',UserRouter)
 app.use('/api',cartRouter)
 app.use('/api',favoriteRouter)
-
+app.use('/api',orderRouter)
 
 
 app.get('/health',async (req,res,next)=>{

@@ -4,7 +4,7 @@ import AppError from './AppError.js';
 
 const validateEnvVariables = () => {
     
-    const requiredVariables = ['PORT','MONGO_URI','CLOUDINARY_CLOUD_NAME','CLOUDINARY_API_KEY','CLOUDINARY_API_SECRET',"SALT",'JWT_SECRET','JWT_EXPIRY','REFRESH_TOKEN','REFRESH_TOKEN_EXPIRY'];
+    const requiredVariables = ['PORT','MONGO_URI','CLOUDINARY_CLOUD_NAME','CLOUDINARY_API_KEY','CLOUDINARY_API_SECRET',"SALT",'JWT_SECRET','JWT_EXPIRY','REFRESH_TOKEN','REFRESH_TOKEN_EXPIRY','RAZOR_KEY_ID','RAZOR_KEY_SECRET'];
 
     for (const variables of requiredVariables) {
         if (!process.env[variables]) {
@@ -22,7 +22,9 @@ const validateEnvVariables = () => {
         jwtSecret: process.env.JWT_SECRET,
         jwtExpiry: process.env.JWT_EXPIRY,
         refreshToken: process.env.REFRESH_TOKEN,
-        refreshTokenExpiry: process.env.REFRESH_TOKEN_EXPIRY
+        refreshTokenExpiry: process.env.REFRESH_TOKEN_EXPIRY,
+        razorKeyId: process.env.RAZOR_KEY_ID,
+        razorKeySecret: process.env.RAZOR_KEY_SECRET
     }
 }
 export default validateEnvVariables;

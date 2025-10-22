@@ -5,6 +5,8 @@ import axios from 'axios';
 import '../App.css';
 import {useNavigate} from 'react-router-dom'
 import AddToCart from '../utils/cart.js';
+import addToFavorite from '../utils/addtofavorite.js';
+import { showError } from '../utils/toast.jsx';
 
 const FeaturedProducts = () => {
   const dispatch = useDispatch();
@@ -30,6 +32,13 @@ const FeaturedProducts = () => {
   }, [dispatch]); 
   const productLink = (id)=>{
     navigate(`/productdetails/${id}`)
+  }
+  const addtofavorites = (productid)=>{
+    if(!user){
+      showError("Please Login to add wish list")
+      return 
+    }
+    addToFavorite(productid,user.userId)
   }
 
   
@@ -289,8 +298,8 @@ const FeaturedProducts = () => {
                         <span className="original-price">₹{Math.floor(product.productPrice * 1.2)}</span>
                       </div>
                       <div className="mt-2 button-row">
-                        <a onClick={() => addtocart(product.id)} className="btn btn1">Add To Cart</a>
-                        <a href="#" className="btn btn1"><i className="fa fa-heart"></i></a>
+                        <button onClick={() => addtocart(product.id)} className="btn btn1">Add To Cart</button>
+                        <button onClick={()=>addtofavorites(product.id)} className="btn btn1"><i className="fa fa-heart"></i></button>
                         <button onClick={()=>productLink(product.productId)} className="btn btn1">View</button>
                         <span className={`stock-badge ${product.productStock > 0 ? "bg-success" : "bg-danger"}`}>
                           {product.productStock > 0 ? "In Stock" : "Out of Stock"}

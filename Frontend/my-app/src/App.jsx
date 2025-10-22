@@ -18,6 +18,8 @@ import {loginUser,updateUserInfo} from './slice/slice.jsx'
 import {jwtDecode} from 'jwt-decode'
 import Login from './pages/login.jsx';
 import ShoppingCartPage from './pages/cartpage.jsx'
+import FavoritesPage from './pages/favorites.jsx'
+import UserProfilePage from './pages/profile.jsx'
 
 
 function App() {
@@ -82,6 +84,8 @@ function App() {
         <Route path='/productdetails/:id' element={<ProductDetails />} />
         <Route path='/cart' element={<ShoppingCartPage />} />
         <Route path='/login' element={<Login />} />
+        <Route path='/wishlist' element={<FavoritesPage />}></Route>
+        <Route path='/profile' element={<UserProfilePage/>}></Route>
       </Routes>
       <Footer />
     </div>

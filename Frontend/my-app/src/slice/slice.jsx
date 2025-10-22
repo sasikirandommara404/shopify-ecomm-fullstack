@@ -27,11 +27,15 @@ const ecommerceSlice = createSlice({
         },
         setCartItems : (state,action)=>{
             state.cart = action.payload;
+        },
+        setWishList : (state,action)=>{
+            state.wishlist = action.payload;
         }
+        
         
     }
 });
 
-export const {setProducts,loginUser,updateUserInfo,setCartItems} = ecommerceSlice.actions;
+export const {setProducts,loginUser,updateUserInfo,setCartItems,setWishList} = ecommerceSlice.actions;
 export default ecommerceSlice.reducer;
 

@@ -6,6 +6,8 @@ import axios from 'axios';
 import '../App.css';
 import { useNavigate } from 'react-router-dom';
 import AddToCart from '../utils/cart.js';
+import addToFavorite from '../utils/addtofavorite.js';
+import { showError } from '../utils/toast.jsx';
 
 const Fashion = () => {
   const [selected, setSelected] = useState(null);
@@ -42,6 +44,13 @@ const Fashion = () => {
   };
   const productLink = (id)=>{
     navigate(`/productdetails/${id}`)
+  }
+  const addtowishlist = (productId)=>{
+    if(!user){
+      showError("Please Login to add wish list")
+      return 
+    } 
+    addToFavorite(productId,user.userId)
   }
 
   return (
@@ -354,7 +363,7 @@ const Fashion = () => {
                       </div>
                       <div className="mt-2 button-row">
                         <button onClick={()=>addtocart(product.id)} className="btn btn1">Add To Cart</button>
-                        <a href="#" className="btn btn1"><i className="fa fa-heart"></i></a>
+                        <button onClick={()=>addtowishlist(product.id)} className="btn btn1"><i className="fa fa-heart"></i></button>
                         <button onClick={()=>productLink(product.productId)} className="btn btn1">View</button>
                         <span className={`stock-badge ${product.productStock > 0 ? "bg-success" : "bg-danger"}`}>
                           {product.productStock > 0 ? "In Stock" : "Out of Stock"}

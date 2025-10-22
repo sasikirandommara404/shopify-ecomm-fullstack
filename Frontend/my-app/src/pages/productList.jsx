@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../App.css';
 import AddToCart from '../utils/cart.js';
+import addToFavorite from '../utils/addtofavorite.js'
+import { showError } from '../utils/toast.jsx';
 
 
 export const ProductList = () => {
@@ -33,6 +35,14 @@ export const ProductList = () => {
     navigate(`/productdetails/${id}`)
 
   }
+
+  const addtowishlist = (id)=>{
+    if(!user){
+      showError("Please login to add product in wishlist")
+      return
+    }
+    addToFavorite(id,user.userId)
+  }
   
   return (
 
@@ -42,13 +52,9 @@ export const ProductList = () => {
 
           {products && products.length > 0 ? (
             products.map((product) => (
-              // ------------------------------------------------------------------
-              // KEY CHANGE: Added 'col-6' for 2 columns on mobile/small screens.
-              // ------------------------------------------------------------------
               <div className="col-6 col-md-3 mb-4" key={product._id}>
                 <div className="product-card">
                   <div className="product-card-img">
-                    {/* Placeholder image source/alt if needed */}
                     <img src={product.productImage[0]?.url} alt={product.productName} />
                   </div>
                   <div className="product-card-body">
@@ -62,7 +68,7 @@ export const ProductList = () => {
                     </div>
                     <div className="mt-2 button-row">
                       <button onClick={()=>addtocart(product.id)} className="btn btn1">Add To Cart</button>
-                      <a href="#" className="btn btn1"><i className="fa fa-heart"></i></a>
+                      <button onClick ={()=>addtowishlist(product.id)} className="btn btn1"><i className="fa fa-heart"></i></button>
                       <button onClick={()=>onProductLink(product.productId)} className="btn btn1">View</button>
                       <span className={`stock-badge ${product.productStock > 0 ? "bg-success" : "bg-danger"}`}>
                         {product.productStock > 0 ? "In Stock" : "Out of Stock"}
